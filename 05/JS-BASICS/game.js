@@ -1,18 +1,22 @@
 const randNum = parseInt( Math.random() * 1000000 );
 console.log(randNum);
-let life = 0;
+let tippNum = 1;
 
-while (life < 20) {
+// alert(randNum);
+
+while (tippNum <= 20) {
     let tipp = parseInt(prompt('Tipped : '));
     if (tipp == randNum) {
-        alert('Gratulálok, '+ life + 'lépésből eltaláltad!');
+        alert('Gratulálok, '+ tippNum + ' lépésből eltaláltad!');
         break;
     } else if (tipp > randNum) {
-        alert(life + '. tipp nem talált: A megoldás kisebb.');
+        alert(tippNum + '. tipp nem talált: A megoldás kisebb.');
     } else if (tipp < randNum) {
-        alert(life + '. tipp nem talált: A megoldás nagyobb.');
+        alert(tippNum + '. tipp nem talált: A megoldás nagyobb.');
+    } else if (tippNum == 20) {
+        alert('Sajnos ez most nem sikerült! A megoldás: ' + randNum)
+    } else {
+        alert(tippNum + '. tipp nem talált: Hibás tipp.');
     }
-    life++;
+    tippNum++;
 }
-if (life == 0)
-    alert('Sajnos ez most nem sikerült! A megoldás: ' + randNum)
