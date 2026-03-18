@@ -1,0 +1,30 @@
+body {
+    background-color: orange;
+    display: flex;
+    justify-content: center;
+}
+
+#tartalom {
+    background-color: #fff;
+    width: 1000px;
+    min-height: 500px;
+    text-align: center;
+}
+
+h1 {
+    font-size: larger;
+}
+
+ul {
+    text-align: left;
+    font-size: large;
+}
+
+.kesz {
+    text-decoration: line-through;
+    color: gray;
+}
+
+#submit-btn {
+    background-color: orange;
+}
