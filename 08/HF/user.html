@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git App - Felhasználó adatlap</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1 id="user-name"></h1>
+
+    <img id="avatar" width="350px">
+    
+    <p>
+        <strong>Bio:</strong>
+        <span id="bio"></span>
+    </p>
+    <p>
+        <strong>Blog:</strong>
+        <a id="blog"></a>
+    </p>
+    <p>
+        <strong>Location:</strong>
+        <span id="location"></span>
+    </p>
+    
+    
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2>Repository lista</h2>
+                <strong id="repos">Public repository-k száma: </strong>
+                <table id="repoTable">
+                    <tr>
+                        <th>Név</th>
+                        <th>Leírás</th>
+                        <th>Homepage</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="col">
+                <h2>Követők</h2>
+                <strong id="followers">Követők száma: </strong><br>
+                <strong id="following">Követések száma: </strong>
+                <div id="follower-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+
+        function addToDocument(selector, value) {
+            const elem = document.querySelector(selector);
+            if (!elem) return;
+            if (!value) {
+                elem.parentElement.style.display = 'none';
+            } else {
+                elem.textContent = value;
+                elem.parentElement.style.display = '';
+            }
+        }
+
+        async function loadUser(userName) {
+            try {
+                const res = await fetch('https://api.github.com/users/' + encodeURIComponent(userName), {
+                    headers: {
+                        'Authorization': 'Bearer ' + GH_ACCESS_TOKEN
+                    }
+                });
+                
+                if (!res.ok) {
+                    throw Error('HTTP státusz: ' + res.status);
+                }
+                
+                const data = await res.json();
+                
+                const userNameElem = document.querySelector('#user-name');
+                userNameElem.textContent = data.name;
+                
+                const avatarElem = document.querySelector('#avatar');
+                avatarElem.setAttribute('src', data.avatar_url);
+                
+                addToDocument('#bio', data.bio);
+                addToDocument('#blog', data.blog);
+                const blogElem = document.querySelector('#blog');
+                blogElem.setAttribute('href', data.blog);
+
+                addToDocument('#location', data.location);
+                
+                const followersElem = document.querySelector('#followers');
+                followersElem.innerHTML += data.followers;
+                const followingElem = document.querySelector('#following');
+                followingElem.innerHTML += data.following;
+                
+                const reposElem = document.querySelector('#repos');
+                reposElem.innerHTML += data.public_repos;
+                
+            } catch (err) {
+                console.error(err);
+                alert('Hiba az adatbetöltés során: ' + err);
+            }
+        }
+        
+        async function loadRepoList(userName) {
+            try {
+                const res = await fetch(`https://api.github.com/users/${encodeURIComponent(userName)}/repos`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + GH_ACCESS_TOKEN
+                    }
+                });
+                
+                if (!res.ok) {
+                    throw Error('HTTP státusz: ' + res.status);
+                }
+                
+                const data = await res.json();
+                
+                
+                const repoTable = document.querySelector('#repoTable');
+                for (const repo of data) {
+                    const repoHTML = `
+                    <tr>
+                        <td>${repo.name}</td>
+                        <td>${repo.description ?? ""}</td>
+                        <td>${repo.homepage ?? ""}</td>
+                        </tr>
+                        `;
+                        repoTable.innerHTML += repoHTML;
+                    }
+                    
+                } catch (err) {
+                    console.error(err);
+                    alert('Hiba az adatbetöltés során: ' + err);
+                }
+            }
+
+            async function loadFollowers(userName) {
+                try {
+                const res = await fetch(`https://api.github.com/users/${encodeURIComponent(userName)}/followers`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + GH_ACCESS_TOKEN
+                    }
+                });
+                
+                if (!res.ok) {
+                    throw Error('HTTP státusz: ' + res.status);
+                }
+                
+                const data = await res.json();
+                
+                const followerElem = document.querySelector('#follower-list');
+                for (const follower of data) {
+                    const followerHtml = `
+                    <div class="card">
+                        <img src="${follower.avatar_url}" style="width: 35px;">
+                        <a href="user.html?name=${encodeURIComponent(follower.login)}">${follower.login}</a>
+                    </div>
+                    `;
+                    followerElem.innerHTML += followerHtml;
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert('Hiba az adatbetöltés során: ' + err);
+            }
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const userName = params.get('name');
+
+        loadUser(userName);
+        loadRepoList(userName);
+        loadFollowers(userName);
+    </script>
+</body>
+</html>
